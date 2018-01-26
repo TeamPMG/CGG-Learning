@@ -60,7 +60,7 @@ class generator(chainer.Chain):
         h = F.leaky_relu(h)
 
         h = F.reshape(h,(-1,256,int(self.height/32),int(self.width/32)))
-
+        h2 = h
         for i in range(depth-1):
             if depth-1==i+1:
                 h2 = getattr(self, "b%d" % i)(h,False)
