@@ -8,7 +8,7 @@ NUMBER_OF_TAG=1539
 
 class g_block(chainer.Chain):
     def __init__(self, in_dim, out_dim):
-        super().__init__(
+        super(g_block,self).__init__(
             dc1=L.Deconvolution2D(in_dim, out_dim, 4, stride=2, pad=1),
             dc2=L.Deconvolution2D(out_dim, out_dim, 3, stride=1, pad=1),
             bn_dc1=L.BatchNormalization(out_dim),
@@ -24,7 +24,7 @@ class g_block(chainer.Chain):
 
 class generator(chainer.Chain):
     def __init__(self, width, height, z_size):
-        super().__init__(
+        super(generator,self).__init__(
             l1=L.Linear(z_size, 100),
             l2=L.Linear(NUMBER_OF_TAG, 100),
             l3=L.Linear(200, 100),
@@ -92,7 +92,7 @@ class generator(chainer.Chain):
     
 class d_block(chainer.Chain):
     def __init__(self, in_dim, out_dim):
-        super().__init__(
+        super(d_block,self).__init__(
             c1=L.Convolution2D(in_dim, out_dim, 3, stride=1, pad=1),
             c2=L.Convolution2D(out_dim, out_dim, 3, stride=1, pad=1),
             bn1 = L.BatchNormalization(out_dim),
@@ -114,7 +114,7 @@ class d_block(chainer.Chain):
 
 class std(chainer.Chain):
     def __init__(self):
-        super().__init__(
+        super(std,self).__init__(
         )
     def __call__(self,x):
         mean=F.mean(x,axis=0)
@@ -130,7 +130,7 @@ class std(chainer.Chain):
     
 class discriminator(chainer.Chain):
     def __init__(self):
-        super().__init__(
+        super(discriminator,self).__init__(
             from_RGB=L.Convolution2D(3, 64, 1, stride=1, pad=0),    
             
             b0=d_block(65,64),
