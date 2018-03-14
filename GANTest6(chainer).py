@@ -18,7 +18,7 @@ from network2 import generator,discriminator
 TRAIN_IMAGE_PATH="/Users/KOKI/Documents/TrainData5/*" 
 GENERATED_IMAGE_PATH="/Users/KOKI/Documents/Generated/" 
 BATCH_SIZE = 10
-NUM_EPOCH = 10
+NUM_EPOCH = 200
 DIM=3
 NUMBER_OF_TAG=1539
 
@@ -147,13 +147,13 @@ def train(width,height,depth,start_alpha=0):
     except:
         pass
 
-    g_opt = chainer.optimizers.Adam(alpha=0.001, beta1=0.0, beta2=0.99)
+    g_opt = chainer.optimizers.Adam(alpha=0.0001, beta1=0.0, beta2=0.99)
     g_opt.setup(g)
-    g_opt.add_hook(chainer.optimizer.WeightDecay(0.0005))
+    #g_opt.add_hook(chainer.optimizer.WeightDecay(0.0005))
     
-    d_opt = chainer.optimizers.Adam(alpha=0.001, beta1=0.0, beta2=0.99)
+    d_opt = chainer.optimizers.Adam(alpha=0.0001, beta1=0.0, beta2=0.99)
     d_opt.setup(d)
-    d_opt.add_hook(chainer.optimizer.WeightDecay(0.0005))
+    #d_opt.add_hook(chainer.optimizer.WeightDecay(0.0005))
 
     X_train,tags=data_import(16*(2**depth),16*(2**depth))
     '''
@@ -161,8 +161,9 @@ def train(width,height,depth,start_alpha=0):
     X_train = X_train.transpose(0,3,1,2)
     '''
     print(X_train.shape)
+    #tags = np.zeros((X_train.shape[0],NUMBER_OF_TAG))
     tags = tags.astype(np.float32)
-
+    
 
     num_batches = int(X_train.shape[0] / BATCH_SIZE)
     alpha=start_alpha
@@ -170,7 +171,7 @@ def train(width,height,depth,start_alpha=0):
 
         for index in range(num_batches):
             if alpha<1.0:
-                alpha=alpha + 5e-4
+                alpha=alpha +  1e-4
             '''
             x = xs[(j * bm):((j + 1) * bm)]
             t = ts[(j * bm):((j + 1) * bm)]
@@ -185,7 +186,7 @@ def train(width,height,depth,start_alpha=0):
             
         
             x = g(z,tag_batch,depth,alpha)
-            if index%10==0:
+            if index%100==0:
                 generated_images=x.data*127.5+127.5
                 generated_images=generated_images.transpose(0,2,3,1)
                 save_generated_image(generated_images,"%04d_%04d.png" % (epoch, index))
@@ -200,6 +201,15 @@ def train(width,height,depth,start_alpha=0):
             #d_loss+=F.mean_squared_error(yl2, Variable(np.ones((len(image_batch),1), dtype=np.float32)))
             d_loss=-F.sum(yl2 - yl) / len(image_batch)
             d_loss+=F.mean(0.001*yl*yl)
+            #grad_loss
+            e = np.random.uniform(0., 1., (BATCH_SIZE, 1, 1, 1))
+            x_hat = e * x + (1 - e) * image_batch
+            grad = chainer.grad([d(x_hat,tag_batch,depth,alpha)], [x_hat], enable_double_backprop=True)
+            grad = grad[0]
+            l = 10
+            gradient_penalty = l * F.mean_squared_error(grad, np.ones_like(grad.data))
+            d_loss+=gradient_penalty
+            
             g_loss=-F.sum(yl) / len(image_batch)
             '''
             mean=F.mean(x,axis=0)
@@ -228,11 +238,9 @@ def train(width,height,depth,start_alpha=0):
 
 
 if __name__ == '__main__':
-    #start=3
-    #train(512,512,start,0.3)
+
     start=0
+
     for i in range(6-start):
         train(512,512,i+start)
-    
-    
     print("sex")

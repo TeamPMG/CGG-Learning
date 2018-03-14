@@ -89,6 +89,50 @@ class generator(chainer.Chain):
 
         
         return h
+
+class generator_test(chainer.Chain):
+    def __init__(self, width, height, z_size):
+        super(generator_test,self).__init__(
+            l1=L.Linear(z_size, 100),
+            l2=L.Linear(NUMBER_OF_TAG, 100),
+            l3=L.Linear(200, 100),
+            l4 = L.Linear(100, int(width/32*height/32*256)),
+            
+            #bn_l3=L.BatchNormalization(100),
+            #bn_l4=L.BatchNormalization(100),
+            b0=g_block(256,128),
+            b1=g_block(128,64),
+            b2=g_block(64,32),
+            b3=g_block(32,16),
+            b4=g_block(16,8),
+
+            to_RGB=L.Convolution2D(None, 3, 1, stride=1, pad=0),
+
+        )
+        self.width=width
+        self.height=height
+        
+
+    def __call__(self, noise, tag,depth,alpha):
+        noise_input = self.l1(noise)
+        noise_input = F.leaky_relu(noise_input)
+        tag_input = self.l2(tag)
+        tag_input = F.leaky_relu(tag_input)
+        merge1=F.concat((noise_input,tag_input), axis=1)
+        
+        h = self.l3(merge1)
+        #h = self.bn_l3(h)
+        h = F.leaky_relu(h)
+        h = self.l4(h)
+        #h = self.bn_l4(h)
+        h = F.leaky_relu(h)
+
+        h = F.reshape(h,(-1,256,int(self.height/32),int(self.width/32)))
+        for i in range(depth):
+            h = getattr(self, "b%d" % i)(h,depth-1==i)
+            print("b%d" % i)
+        
+        return h
     
 class d_block(chainer.Chain):
     def __init__(self, in_dim, out_dim):
