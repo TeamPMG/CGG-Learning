@@ -15,12 +15,12 @@ from PIL import Image
 from network2 import generator,discriminator
 
 
-TRAIN_IMAGE_PATH="/Users/KOKI/Documents/TrainData5/*" 
-GENERATED_IMAGE_PATH="/Users/KOKI/Documents/Generated/" 
+TRAIN_IMAGE_PATH = "/Users/KOKI/Documents/TrainData5/*" 
+GENERATED_IMAGE_PATH = "/Users/KOKI/Documents/Generated/" 
 BATCH_SIZE = 10
 NUM_EPOCH = 200
-DIM=3
-NUMBER_OF_TAG=1539
+DIM = 3
+NUMBER_OF_TAG = 1539
 
 
 
@@ -239,8 +239,10 @@ def train(width,height,depth,start_alpha=0):
 
 if __name__ == '__main__':
 
-    start=0
-
+    start=2
+    train(512,512,start,0.25)
+    """
     for i in range(6-start):
         train(512,512,i+start)
     print("sex")
+    """ 
