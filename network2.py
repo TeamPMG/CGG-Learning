@@ -11,13 +11,15 @@ class g_block(chainer.Chain):
         super(g_block,self).__init__(
             dc1=L.Deconvolution2D(in_dim, out_dim, 4, stride=2, pad=1),
             dc2=L.Deconvolution2D(out_dim, out_dim, 3, stride=1, pad=1),
-            bn_dc1=L.BatchNormalization(out_dim),
-            bn_dc2=L.BatchNormalization(out_dim),
+            #bn_dc1=L.BatchNormalization(out_dim),
+            #bn_dc2=L.BatchNormalization(out_dim),
             to_RGB=L.Convolution2D(out_dim, 3, 1, stride=1, pad=0),
         )
     def __call__(self,x,to_rgb=False):
-        h = F.leaky_relu(self.bn_dc1(self.dc1(x)))
-        h = F.leaky_relu(self.bn_dc2(self.dc2(h)))
+        #h = F.leaky_relu(self.bn_dc1(self.dc1(x)))
+        #h = F.leaky_relu(self.bn_dc2(self.dc2(h)))
+        h = F.leaky_relu(self.dc1(x))
+        h = F.leaky_relu(self.dc2(h))
         if to_rgb:
             h = F.tanh(self.to_RGB(h)) 
         return h
