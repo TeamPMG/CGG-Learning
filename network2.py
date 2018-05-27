@@ -34,11 +34,11 @@ class generator(chainer.Chain):
             
             #bn_l3=L.BatchNormalization(100),
             #bn_l4=L.BatchNormalization(100),
-            b0=g_block(256,128),
-            b1=g_block(128,64),
-            b2=g_block(64,32),
-            b3=g_block(32,16),
-            b4=g_block(16,8),
+            b0=g_block(256,256),
+            b1=g_block(256,256),
+            b2=g_block(256,256),
+            b3=g_block(256,256),
+            b4=g_block(256,256),
 
             to_RGB=L.Convolution2D(None, 3, 1, stride=1, pad=0),
 
